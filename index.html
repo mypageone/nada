@@ -1,432 +1,239 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Model Portfolio</title>
-<meta name="description" content="Portfolio modelling — compcard, gallery, dan kontak booking.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --paper:#FAFAF8;
-    --paper-dim:#F1EFEA;
-    --ink:#141414;
-    --ink-soft:#57534A;
-    --line:#DEDAD2;
-    --signal:#B3261E;
-    --signal-soft:rgba(179,38,30,.08);
-    --maxw:1180px;
-    --gutter:clamp(20px, 5vw, 64px);
-  }
-  *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  body{
-    margin:0;
-    background:var(--paper);
-    color:var(--ink);
-    font-family:'Inter',sans-serif;
-    -webkit-font-smoothing:antialiased;
-  }
-  img{max-width:100%;display:block;}
-  a{color:inherit;}
-  .display{font-family:'Bodoni Moda',serif;}
-  .mono{font-family:'Space Mono',monospace;}
-  .eyebrow{
-    font-family:'Space Mono',monospace;
-    font-size:11px;
-    letter-spacing:.18em;
-    text-transform:uppercase;
-    color:var(--signal);
-  }
-  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 var(--gutter);}
-
-  /* crop marks — signature motif borrowed from print compcards */
-  .crop{position:relative;}
-  .crop::before,.crop::after,
-  .crop > .cm-tl, .crop > .cm-br{position:absolute; width:14px; height:14px; pointer-events:none;}
-  .crop::before{content:"";top:-1px; left:-1px; border-top:1px solid var(--ink); border-left:1px solid var(--ink);}
-  .crop::after{content:"";bottom:-1px; right:-1px; border-bottom:1px solid var(--ink); border-right:1px solid var(--ink);}
-
-  /* ---------- NAV ---------- */
-  header.site{
-    position:sticky; top:0; z-index:40;
-    background:rgba(250,250,248,.88);
-    backdrop-filter:blur(8px);
-    border-bottom:1px solid var(--line);
-  }
-  .nav{
-    max-width:var(--maxw); margin:0 auto; padding:16px var(--gutter);
-    display:flex; align-items:center; justify-content:space-between;
-  }
-  .nav-name{font-family:'Bodoni Moda',serif; font-weight:500; font-size:18px; letter-spacing:.02em;}
-  .nav-links{display:flex; gap:28px; list-style:none; margin:0; padding:0;}
-  .nav-links a{
-    font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.12em;
-    text-transform:uppercase; text-decoration:none; color:var(--ink-soft);
-    padding-bottom:4px; border-bottom:1px solid transparent; transition:.2s;
-  }
-  .nav-links a:hover{color:var(--ink); border-color:var(--signal);}
-  .nav-toggle{display:none; background:none; border:none; cursor:pointer; padding:4px;}
-  .nav-toggle span{display:block; width:22px; height:1px; background:var(--ink); margin:5px 0;}
-  @media (max-width:760px){
-    .nav-links{
-      position:fixed; inset:0 0 0 auto; top:57px; height:calc(100vh - 57px);
-      width:72%; max-width:320px; background:var(--paper); flex-direction:column;
-      padding:32px var(--gutter); gap:24px; border-left:1px solid var(--line);
-      transform:translateX(100%); transition:transform .3s ease; margin:0;
-    }
-    .nav-links.open{transform:translateX(0);}
-    .nav-toggle{display:block;}
-  }
-
-  /* ---------- HERO ---------- */
-  .hero{
-    display:grid; grid-template-columns:1fr; 
-  }
-  @media (min-width:860px){
-    .hero{grid-template-columns:.85fr 1.15fr; align-items:stretch; min-height:calc(100vh - 58px);}
-  }
-  .hero-text{
-    display:flex; flex-direction:column; justify-content:center;
-    padding:56px var(--gutter);
-    order:2;
-  }
-  .hero-photo{order:1; position:relative; overflow:hidden; background:var(--paper-dim); min-height:52vh;}
-  @media (min-width:860px){
-    .hero-text{order:1;}
-    .hero-photo{order:2; min-height:100%;}
-  }
-  .hero-photo img{width:100%; height:100%; object-fit:cover; min-height:52vh;}
-  .hero-photo .crop::before,.hero-photo .crop::after{border-color:#fff;}
-  .hero-index{
-    font-family:'Space Mono',monospace; font-size:11px; color:var(--ink-soft);
-    letter-spacing:.14em; margin-bottom:18px;
-  }
-  h1.hero-title{
-    font-size:clamp(40px, 7vw, 76px); line-height:.98; margin:0 0 18px; font-weight:500;
-  }
-  h1.hero-title em{color:var(--signal); font-style:italic;}
-  .hero-tagline{font-size:16px; color:var(--ink-soft); max-width:38ch; line-height:1.6; margin:0 0 28px;}
-  .hero-cta{display:flex; gap:14px; flex-wrap:wrap;}
-  .btn{
-    font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase;
-    text-decoration:none; padding:14px 24px; border:1px solid var(--ink); color:var(--ink);
-    transition:.2s; display:inline-block;
-  }
-  .btn:hover{background:var(--ink); color:var(--paper);}
-  .btn.primary{background:var(--ink); color:var(--paper);}
-  .btn.primary:hover{background:var(--signal); border-color:var(--signal);}
-
-  /* ---------- SECTION SHELL ---------- */
-  section{padding:88px 0;}
-  .section-head{margin-bottom:44px;}
-  .section-head h2{
-    font-family:'Bodoni Moda',serif; font-weight:500; font-size:clamp(30px,4vw,44px);
-    margin:10px 0 0;
-  }
-  .section-head p{color:var(--ink-soft); max-width:56ch; margin:14px 0 0; line-height:1.7;}
-  .rule{border:none; border-top:1px solid var(--line); margin:0;}
-
-  /* ---------- COMPCARD ---------- */
-  .compcard{
-    display:grid; grid-template-columns:1fr; gap:0;
-    border:1px solid var(--line); background:var(--paper);
-  }
-  @media (min-width:760px){ .compcard{grid-template-columns:.9fr 1.1fr;} }
-  .cc-photo{background:var(--paper-dim); aspect-ratio:3/4; overflow:hidden;}
-  .cc-photo img{width:100%; height:100%; object-fit:cover;}
-  .cc-data{padding:36px var(--gutter);}
-  .cc-bio{color:var(--ink-soft); line-height:1.75; font-size:14.5px; margin:0 0 28px; padding-bottom:28px; border-bottom:1px solid var(--line);}
-  .cc-stats{display:grid; grid-template-columns:repeat(2,1fr); gap:0;}
-  .cc-stat{padding:14px 0; border-bottom:1px solid var(--line);}
-  .cc-stat:nth-child(odd){padding-right:16px;}
-  .cc-stat:nth-child(even){padding-left:16px; border-left:1px solid var(--line);}
-  .cc-stat .lbl{
-    font-family:'Space Mono',monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase;
-    color:var(--ink-soft); display:block; margin-bottom:4px;
-  }
-  .cc-stat .val{font-family:'Space Mono',monospace; font-size:16px; font-weight:700;}
-
-  /* ---------- GALLERY ---------- */
-  .gallery-grid{
-    display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-    grid-auto-rows:8px; gap:var(--gutter-sm,16px);
-  }
-  .g-item{
-    position:relative; overflow:hidden; cursor:zoom-in; background:var(--paper-dim);
-    border:1px solid var(--line);
-  }
-  .g-item img{width:100%; height:100%; object-fit:cover; display:block; transition:transform .5s ease;}
-  .g-item:hover img{transform:scale(1.045);}
-  .g-frame{
-    position:absolute; bottom:10px; left:10px; font-family:'Space Mono',monospace;
-    font-size:10px; letter-spacing:.08em; color:#fff; background:rgba(20,20,20,.55);
-    padding:3px 8px; opacity:0; transition:opacity .25s;
-  }
-  .g-item:hover .g-frame{opacity:1;}
-  .gallery-empty{color:var(--ink-soft); font-family:'Space Mono',monospace; font-size:13px; padding:40px 0;}
-
-  /* Lightbox */
-  .lightbox{
-    position:fixed; inset:0; background:rgba(15,14,12,.96); z-index:100;
-    display:none; align-items:center; justify-content:center; padding:24px;
-  }
-  .lightbox.open{display:flex;}
-  .lightbox img{max-width:min(92vw,1000px); max-height:84vh; object-fit:contain; border:1px solid #333;}
-  .lb-close,.lb-prev,.lb-next{
-    position:absolute; background:none; border:none; color:#fff; cursor:pointer;
-    font-family:'Space Mono',monospace; font-size:13px; letter-spacing:.1em;
-  }
-  .lb-close{top:24px; right:var(--gutter);}
-  .lb-prev{left:var(--gutter); top:50%; transform:translateY(-50%); font-size:28px;}
-  .lb-next{right:var(--gutter); top:50%; transform:translateY(-50%); font-size:28px;}
-  .lb-count{position:absolute; bottom:24px; left:50%; transform:translateX(-50%); color:#aaa; font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.1em;}
-
-  /* ---------- CONTACT ---------- */
-  .contact-wrap{
-    display:grid; grid-template-columns:1fr; gap:40px;
-    border:1px solid var(--line); padding:var(--gutter);
-  }
-  @media (min-width:820px){ .contact-wrap{grid-template-columns:1.1fr .9fr;} }
-  .contact-statement{font-family:'Bodoni Moda',serif; font-size:clamp(24px,3vw,34px); line-height:1.25; margin:0;}
-  .contact-statement .dot{color:var(--signal);}
-  .contact-tiles{display:grid; gap:1px; background:var(--line); border:1px solid var(--line);}
-  .c-tile{
-    background:var(--paper); padding:20px 22px; text-decoration:none; color:var(--ink);
-    display:flex; align-items:center; justify-content:space-between; transition:.2s;
-  }
-  .c-tile:hover{background:var(--signal-soft);}
-  .c-tile .lbl{font-family:'Space Mono',monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-soft);}
-  .c-tile .v{font-size:15px; margin-top:4px; word-break:break-word;}
-  .c-tile .arrow{font-family:'Space Mono',monospace; font-size:16px; color:var(--signal); flex-shrink:0; margin-left:12px;}
-
-  footer{
-    border-top:1px solid var(--line); padding:32px var(--gutter);
-    display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between;
-    font-family:'Space Mono',monospace; font-size:11px; color:var(--ink-soft); letter-spacing:.06em;
-  }
-
-  [data-reveal]{opacity:0; transform:translateY(18px); transition:opacity .6s ease, transform .6s ease;}
-  [data-reveal].is-visible{opacity:1; transform:translateY(0);}
-  @media (prefers-reduced-motion:reduce){
-    [data-reveal]{opacity:1; transform:none; transition:none;}
-    html{scroll-behavior:auto;}
-    .g-item img{transition:none;}
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Model Portfolio</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        nude: {
+                            50: '#FAF8F5',
+                            100: '#F3ECE7',
+                            200: '#E6D7CE',
+                            300: '#D4BCAC',
+                            700: '#6B574C',
+                            800: '#4A3B33',
+                            900: '#2A201B',
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Cormorant Garamond', 'serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
+<body class="bg-nude-50 text-nude-900 font-sans antialiased selection:bg-nude-200">
 
-<header class="site">
-  <nav class="nav wrap">
-    <span class="nav-name" id="navName">—</span>
-    <ul class="nav-links" id="navLinks">
-      <li><a href="#compcard">Compcard</a></li>
-      <li><a href="#gallery">Gallery</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
-    <button class="nav-toggle" id="navToggle" aria-label="Buka menu"><span></span><span></span><span></span></button>
-  </nav>
-</header>
+    <!-- Header Navigation -->
+    <header class="fixed top-0 left-0 right-0 z-40 bg-nude-50/80 backdrop-blur-md border-b border-nude-200/50">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" id="nav-brand" class="font-serif text-2xl font-semibold tracking-wider uppercase text-nude-900">Portfolio</a>
+            <nav class="hidden md:flex space-x-8 text-sm uppercase tracking-widest text-nude-700 font-medium">
+                <a href="#about" class="hover:text-nude-900 transition">Tentang</a>
+                <a href="#compcard" class="hover:text-nude-900 transition">Compcard</a>
+                <a href="#gallery" class="hover:text-nude-900 transition">Galeri</a>
+                <a href="#contact" class="hover:text-nude-900 transition">Kontak</a>
+            </nav>
+            <a href="#contact" class="hidden md:inline-block px-5 py-2 border border-nude-800 text-xs uppercase tracking-widest hover:bg-nude-900 hover:text-white transition">Book Now</a>
+        </div>
+    </header>
 
-<section class="hero">
-  <div class="hero-text wrap" style="padding-left:0;padding-right:0;">
-    <div class="hero-index mono">N&deg;01 &mdash; <span id="heroLocation">—</span></div>
-    <h1 class="hero-title display" id="heroName">Loading<em>.</em></h1>
-    <p class="hero-tagline" id="heroTagline"></p>
-    <div class="hero-cta">
-      <a href="#contact" class="btn primary">Booking Inquiry</a>
-      <a href="#gallery" class="btn">View Portfolio</a>
+    <!-- Hero Section -->
+    <section id="about" class="pt-32 pb-20 px-6 max-w-6xl mx-auto min-h-screen flex items-center">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-12 items-center w-full">
+            <div class="md:col-span-6 space-y-6">
+                <span class="text-xs uppercase tracking-[0.3em] text-nude-700 font-semibold" id="model-category">Professional Hijab Model</span>
+                <h1 class="font-serif text-5xl md:text-7xl font-light leading-tight tracking-tight" id="model-name">Loading Name...</h1>
+                <p class="text-nude-700 text-base md:text-lg leading-relaxed font-light" id="model-bio">Loading bio...</p>
+                <div class="pt-4 flex flex-wrap gap-4">
+                    <a href="#gallery" class="px-8 py-3.5 bg-nude-900 text-white text-xs uppercase tracking-widest hover:bg-nude-800 transition shadow-sm">Lihat Portfolio</a>
+                    <a href="#contact" class="px-8 py-3.5 border border-nude-800 text-nude-900 text-xs uppercase tracking-widest hover:bg-nude-200 transition">Hubungi Saya</a>
+                </div>
+            </div>
+            <div class="md:col-span-6 relative">
+                <div class="aspect-[3/4] bg-nude-200 overflow-hidden shadow-xl rounded-sm">
+                    <img id="primary-photo" src="" alt="Primary Model Photo" class="w-full h-full object-cover object-center transition duration-700 hover:scale-105">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Compcard Section -->
+    <section id="compcard" class="py-24 bg-nude-100 border-y border-nude-200">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="text-center max-w-xl mx-auto mb-16 space-y-2">
+                <h2 class="font-serif text-4xl font-light">Model Measurements</h2>
+                <p class="text-xs uppercase tracking-widest text-nude-700">Digital Compcard Specification</p>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center" id="compcard-grid">
+                <!-- Compcard metrics will be dynamically loaded -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery" class="py-24 max-w-6xl mx-auto px-6">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+            <div>
+                <span class="text-xs uppercase tracking-widest text-nude-700">Portfolio</span>
+                <h2 class="font-serif text-4xl font-light mt-1">Photo Gallery</h2>
+            </div>
+            <p class="text-sm text-nude-700 mt-2 md:mt-0">Koleksi foto runway, lookbook, dan photoshoot brand.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="portfolio-gallery">
+            <!-- Photos will be dynamically inserted here -->
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-24 bg-nude-900 text-nude-50">
+        <div class="max-w-4xl mx-auto px-6 text-center space-y-8">
+            <span class="text-xs uppercase tracking-[0.3em] text-nude-300">Collaboration & Inquiries</span>
+            <h2 class="font-serif text-4xl md:text-5xl font-light">Mari Bekerja Sama</h2>
+            <p class="text-nude-200 max-w-md mx-auto font-light text-sm md:text-base" id="contact-tagline">Tersedia untuk Photoshoot Fashion Hijab, Catalog, Commercial, dan Runway Event.</p>
+            
+            <div class="flex flex-col md:flex-row justify-center items-center gap-6 pt-6">
+                <a id="btn-whatsapp" href="#" target="_blank" class="w-full md:w-auto px-8 py-4 bg-nude-50 text-nude-900 font-medium text-xs uppercase tracking-widest hover:bg-nude-200 transition flex items-center justify-center gap-3">
+                    <i class="fab fa-whatsapp text-lg"></i> WhatsApp Booking
+                </a>
+                <a id="btn-email" href="#" class="w-full md:w-auto px-8 py-4 border border-nude-300 text-nude-50 font-medium text-xs uppercase tracking-widest hover:bg-nude-800 transition flex items-center justify-center gap-3">
+                    <i class="far fa-envelope text-lg"></i> Kirim Email
+                </a>
+                <a id="btn-instagram" href="#" target="_blank" class="w-full md:w-auto px-8 py-4 border border-nude-300 text-nude-50 font-medium text-xs uppercase tracking-widest hover:bg-nude-800 transition flex items-center justify-center gap-3">
+                    <i class="fab fa-instagram text-lg"></i> Instagram
+                </a>
+            </div>
+
+            <div class="pt-12 text-xs text-nude-300 border-t border-nude-800">
+                <p id="contact-location"><i class="fas fa-map-marker-alt mr-2"></i> Berbasis di Jakarta, Indonesia</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-6 text-center text-xs text-nude-700 bg-nude-900 border-t border-nude-800">
+        <p>&copy; <span id="year"></span> <span id="footer-name">Model</span>. All Rights Reserved.</p>
+    </footer>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="fixed inset-0 z-50 bg-black/90 hidden items-center justify-center p-4">
+        <button onclick="closeLightbox()" class="absolute top-6 right-6 text-white text-3xl"><i class="fas fa-times"></i></button>
+        <img id="lightbox-img" src="" class="max-h-[90vh] max-w-[90vw] object-contain">
     </div>
-  </div>
-  <div class="hero-photo crop">
-    <img id="heroPhoto" src="" alt="Main portfolio photo">
-  </div>
-</section>
 
-<main class="wrap">
+    <!-- Main Logic Script -->
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
 
-  <section id="compcard" data-reveal>
-    <div class="section-head">
-      <span class="eyebrow">N&deg;02 — Measurements</span>
-      <h2>Compcard</h2>
-      <p id="ccBio"></p>
-    </div>
-    <div class="compcard crop">
-      <div class="cc-photo"><img id="ccPhoto" src="" alt="Compcard photo"></div>
-      <div class="cc-data">
-        <div class="cc-stats" id="ccStats"></div>
-      </div>
-    </div>
-  </section>
+        const defaultData = {
+            name: "Amina Sarah",
+            category: "Hijab & Fashion Model",
+            bio: "Freelance Hijab Model profesional dengan pengalaman di industri fashion, catalogue photoshoot, dan brand ambassador.",
+            primaryPhoto: "https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?auto=format&fit=crop&q=80&w=1000",
+            compcard: {
+                height: "172 cm", weight: "52 kg", bust: "84 cm", waist: "64 cm",
+                hips: "90 cm", shoe: "39 EU", hijab: "Syari / Modern Hijab", eyes: "Cokelat Tua"
+            },
+            gallery: [],
+            contact: {
+                whatsapp: "6281234567890", email: "amina@example.com",
+                instagram: "aminasarah", location: "Jakarta, Indonesia"
+            }
+        };
 
-  <hr class="rule">
+        async function loadPortfolioData() {
+            let data = defaultData;
+            try {
+                // Prioritaskan localStorage jika ada perubahan belum ter-push, jika tidak ambil dari data.json (Server)
+                const localData = localStorage.getItem('hijab_model_portfolio_data');
+                if (localData) {
+                    data = JSON.parse(localData);
+                } else {
+                    const response = await fetch('data.json');
+                    if(response.ok) data = await response.json();
+                }
+            } catch (err) {
+                console.log('Using default portfolio data');
+            }
+            renderPortfolio(data);
+        }
 
-  <section id="gallery" data-reveal>
-    <div class="section-head">
-      <span class="eyebrow">N&deg;03 — Portfolio</span>
-      <h2>Gallery</h2>
-      <p>Selected work — editorial, commercial, and test shoots.</p>
-    </div>
-    <div class="gallery-grid" id="galleryGrid"></div>
-  </section>
+        function renderPortfolio(data) {
+            document.title = `${data.name} | Hijab Model Portfolio`;
+            document.getElementById('nav-brand').textContent = data.name.split(' ')[0] || "Portfolio";
+            document.getElementById('model-name').textContent = data.name;
+            document.getElementById('model-category').textContent = data.category;
+            document.getElementById('model-bio').textContent = data.bio;
+            
+            if(data.primaryPhoto) document.getElementById('primary-photo').src = data.primaryPhoto;
+            
+            document.getElementById('footer-name').textContent = data.name;
 
-  <hr class="rule">
+            const compcardContainer = document.getElementById('compcard-grid');
+            const metrics = [
+                { label: 'Tinggi Badan', val: data.compcard.height, icon: 'fa-ruler-vertical' },
+                { label: 'Berat Badan', val: data.compcard.weight, icon: 'fa-weight-scale' },
+                { label: 'Lingkar Dada', val: data.compcard.bust, icon: 'fa-vector-square' },
+                { label: 'Lingkar Pinggang', val: data.compcard.waist, icon: 'fa-circle-notch' },
+                { label: 'Lingkar Pinggul', val: data.compcard.hips, icon: 'fa-expand' },
+                { label: 'Ukuran Sepatu', val: data.compcard.shoe, icon: 'fa-shoe-prints' },
+                { label: 'Style Hijab', val: data.compcard.hijab, icon: 'fa-user-nurse' },
+                { label: 'Warna Mata', val: data.compcard.eyes, icon: 'fa-eye' },
+            ];
+            compcardContainer.innerHTML = metrics.map(m => `
+                <div class="bg-nude-50 p-6 rounded border border-nude-200/80 hover:shadow-md transition">
+                    <i class="fas ${m.icon} text-nude-700 text-lg mb-2"></i>
+                    <p class="text-xs uppercase tracking-wider text-nude-700 font-medium">${m.label}</p>
+                    <p class="font-serif text-2xl text-nude-900 mt-1">${m.val || '-'}</p>
+                </div>
+            `).join('');
 
-  <section id="contact" data-reveal>
-    <div class="section-head">
-      <span class="eyebrow">N&deg;04 — Booking</span>
-      <h2>Contact</h2>
-    </div>
-    <div class="contact-wrap">
-      <p class="contact-statement" id="contactStatement">Available for bookings<span class="dot">.</span></p>
-      <div class="contact-tiles" id="contactTiles"></div>
-    </div>
-  </section>
+            const galleryContainer = document.getElementById('portfolio-gallery');
+            if(data.gallery && data.gallery.length > 0) {
+                galleryContainer.innerHTML = data.gallery.map(item => `
+                    <div class="group relative aspect-[3/4] bg-nude-200 overflow-hidden rounded cursor-pointer shadow-sm" onclick="openLightbox('${item.url}')">
+                        <img src="${item.url}" alt="${item.title}" class="w-full h-full object-cover transition duration-500 group-hover:scale-105">
+                        <div class="absolute inset-0 bg-nude-900/40 opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-6">
+                            <span class="text-white text-sm font-medium tracking-wider">${item.title || 'Photoshoot'}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                galleryContainer.innerHTML = `<p class="col-span-full text-center text-nude-700">Belum ada foto galeri.</p>`;
+            }
 
-</main>
+            document.getElementById('btn-whatsapp').href = `https://wa.me/${data.contact.whatsapp}?text=Halo%20${encodeURIComponent(data.name)},%20saya%20ingin%20mengajukan%20penawaran%20kerja%20sama%20photoshoot.`;
+            document.getElementById('btn-email').href = `mailto:${data.contact.email}`;
+            document.getElementById('btn-instagram').href = `https://instagram.com/${data.contact.instagram.replace('@','')}`;
+            document.getElementById('contact-location').innerHTML = `<i class="fas fa-map-marker-alt mr-2"></i> ${data.contact.location}`;
+        }
 
-<footer>
-  <span id="footName">—</span>
-  <span>Composite &amp; Portfolio — <span id="footYear"></span></span>
-</footer>
+        function openLightbox(url) {
+            document.getElementById('lightbox-img').src = url;
+            document.getElementById('lightbox').classList.remove('hidden');
+            document.getElementById('lightbox').classList.add('flex');
+        }
 
-<div class="lightbox" id="lightbox">
-  <button class="lb-close" id="lbClose">CLOSE ✕</button>
-  <button class="lb-prev" id="lbPrev">‹</button>
-  <img id="lbImg" src="" alt="">
-  <button class="lb-next" id="lbNext">›</button>
-  <div class="lb-count" id="lbCount"></div>
-</div>
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.add('hidden');
+            document.getElementById('lightbox').classList.remove('flex');
+        }
 
-<script>
-(async function(){
-  const $ = (s,ctx=document)=>ctx.querySelector(s);
-  const $$ = (s,ctx=document)=>Array.from(ctx.querySelectorAll(s));
-
-  // ---------- Load data ----------
-  let data;
-  try{
-    const res = await fetch('data.json?_=' + Date.now());
-    data = await res.json();
-  }catch(e){
-    console.error('Gagal memuat data.json', e);
-    data = {profile:{name:'Data belum tersedia'},compcard:{},gallery:[],contact:{}};
-  }
-
-  const p = data.profile || {};
-  const cc = data.compcard || {};
-  const gallery = data.gallery || [];
-  const contact = data.contact || {};
-
-  document.title = (p.name || 'Model') + ' — Portfolio';
-  $('#navName').textContent = p.name || '—';
-  $('#footName').textContent = p.name || '—';
-  $('#footYear').textContent = new Date().getFullYear();
-  $('#heroLocation').textContent = p.location || '';
-  $('#heroName').innerHTML = (p.name || 'Model Portfolio').replace(/\s+(\S+)$/, ' <em>$1</em>');
-  $('#heroTagline').textContent = p.tagline || '';
-  $('#heroPhoto').src = data.mainPhoto || '';
-  $('#heroPhoto').alt = p.name || 'Photo';
-  $('#ccPhoto').src = data.mainPhoto || '';
-  $('#ccBio').textContent = p.bio || '';
-  $('#contactStatement').innerHTML = (p.availability || 'Available for bookings') + '<span class="dot">.</span>';
-
-  // ---------- Compcard stats ----------
-  const fieldMap = [
-    ['height','Height'],['bust','Bust / Chest'],['waist','Waist'],['hips','Hips'],
-    ['shoe','Shoe Size'],['dress','Dress Size'],['hair','Hair'],['eyes','Eyes']
-  ];
-  const statsEl = $('#ccStats');
-  fieldMap.forEach(([key,label])=>{
-    if(!cc[key]) return;
-    const div = document.createElement('div');
-    div.className = 'cc-stat';
-    div.innerHTML = `<span class="lbl mono">${label}</span><span class="val">${cc[key]}</span>`;
-    statsEl.appendChild(div);
-  });
-
-  // ---------- Gallery ----------
-  const grid = $('#galleryGrid');
-  if(!gallery.length){
-    grid.innerHTML = '<p class="gallery-empty">Belum ada foto di gallery.</p>';
-  } else {
-    gallery.forEach((item, i)=>{
-      const src = typeof item === 'string' ? item : item.src;
-      const caption = typeof item === 'string' ? '' : (item.caption || '');
-      const fig = document.createElement('div');
-      fig.className = 'g-item';
-      fig.dataset.index = i;
-      fig.innerHTML = `<img src="${src}" alt="${caption || 'Portfolio photo ' + (i+1)}" loading="lazy">
-        <span class="g-frame mono">N&deg;${String(i+1).padStart(2,'0')} / ${String(gallery.length).padStart(2,'0')}</span>`;
-      grid.appendChild(fig);
-
-      const img = fig.querySelector('img');
-      const setSpan = ()=>{
-        const rowH = 8, gap = 16;
-        const ratio = img.naturalHeight / img.naturalWidth || 1.3;
-        const targetH = fig.clientWidth * ratio;
-        const span = Math.ceil((targetH + gap) / (rowH + gap));
-        fig.style.gridRowEnd = 'span ' + span;
-      };
-      if(img.complete) setSpan(); else img.addEventListener('load', setSpan);
-      window.addEventListener('resize', setSpan);
-    });
-  }
-
-  // ---------- Contact tiles ----------
-  const tiles = $('#contactTiles');
-  const rows = [];
-  if(contact.email) rows.push({lbl:'Email', v:contact.email, href:'mailto:' + contact.email});
-  if(contact.whatsapp) rows.push({lbl:'WhatsApp', v:'+' + contact.whatsapp.replace(/\D/g,''), href:'https://wa.me/' + contact.whatsapp.replace(/\D/g,'')});
-  if(contact.instagram) rows.push({lbl:'Instagram', v:contact.instagram, href:'https://instagram.com/' + contact.instagram.replace('@','')});
-  if(contact.phone) rows.push({lbl:'Phone', v:contact.phone, href:'tel:' + contact.phone.replace(/\s/g,'')});
-  if(contact.agency) rows.push({lbl:'Agency', v:contact.agency, href:null});
-  tiles.innerHTML = rows.map(r=>{
-    const inner = `<div><span class="lbl">${r.lbl}</span><div class="v">${r.v}</div></div><span class="arrow">→</span>`;
-    return r.href ? `<a class="c-tile" href="${r.href}" target="_blank" rel="noopener">${inner}</a>` : `<div class="c-tile">${inner}</div>`;
-  }).join('') || '<p class="gallery-empty">Info kontak belum diisi.</p>';
-
-  // ---------- Mobile nav ----------
-  const navToggle = $('#navToggle'), navLinks = $('#navLinks');
-  navToggle.addEventListener('click', ()=> navLinks.classList.toggle('open'));
-  $$('#navLinks a').forEach(a=> a.addEventListener('click', ()=> navLinks.classList.remove('open')));
-
-  // ---------- Scroll reveal ----------
-  const io = new IntersectionObserver((entries)=>{
-    entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('is-visible'); io.unobserve(en.target);} });
-  }, {threshold:.12});
-  $$('[data-reveal]').forEach(el=> io.observe(el));
-
-  // ---------- Lightbox ----------
-  const lb = $('#lightbox'), lbImg = $('#lbImg'), lbCount = $('#lbCount');
-  let lbIndex = 0;
-  function openLb(i){
-    if(!gallery.length) return;
-    lbIndex = (i + gallery.length) % gallery.length;
-    const item = gallery[lbIndex];
-    lbImg.src = typeof item === 'string' ? item : item.src;
-    lbCount.textContent = (lbIndex+1) + ' / ' + gallery.length;
-    lb.classList.add('open');
-  }
-  function closeLb(){ lb.classList.remove('open'); }
-  grid.addEventListener('click', (e)=>{
-    const item = e.target.closest('.g-item');
-    if(item) openLb(parseInt(item.dataset.index,10));
-  });
-  $('#lbClose').addEventListener('click', closeLb);
-  $('#lbPrev').addEventListener('click', ()=> openLb(lbIndex-1));
-  $('#lbNext').addEventListener('click', ()=> openLb(lbIndex+1));
-  lb.addEventListener('click', (e)=>{ if(e.target === lb) closeLb(); });
-  document.addEventListener('keydown', (e)=>{
-    if(!lb.classList.contains('open')) return;
-    if(e.key === 'Escape') closeLb();
-    if(e.key === 'ArrowRight') openLb(lbIndex+1);
-    if(e.key === 'ArrowLeft') openLb(lbIndex-1);
-  });
-})();
-</script>
+        window.addEventListener('DOMContentLoaded', loadPortfolioData);
+    </script>
 </body>
 </html>
