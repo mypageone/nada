@@ -1,636 +1,464 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard — Kelola Portfolio</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@500;600&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --paper:#FAFAF8; --paper-dim:#F1EFEA; --ink:#141414; --ink-soft:#57534A;
-    --line:#DEDAD2; --signal:#B3261E; --signal-soft:rgba(179,38,30,.08);
-    --ok:#2E7D46; --ok-soft:rgba(46,125,70,.1);
-  }
-  *{box-sizing:border-box;}
-  body{margin:0; background:var(--paper); color:var(--ink); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased;}
-  .mono{font-family:'Space Mono',monospace;}
-  a{color:inherit;}
-  input,textarea,button,select{font-family:inherit; font-size:14px;}
-  h1,h2,h3{font-family:'Bodoni Moda',serif; font-weight:600; margin:0;}
-
-  /* ---------- Layout ---------- */
-  .app{display:none; min-height:100vh; grid-template-columns:220px 1fr;}
-  .app.ready{display:grid;}
-  @media (max-width:820px){ .app.ready{grid-template-columns:1fr;} }
-
-  .sidebar{
-    background:var(--ink); color:var(--paper); padding:24px 0;
-    display:flex; flex-direction:column; position:sticky; top:0; height:100vh;
-  }
-  @media (max-width:820px){ .sidebar{position:static; height:auto; flex-direction:row; overflow-x:auto; padding:14px 12px; gap:4px;} }
-  .sb-brand{padding:0 22px 20px; font-family:'Bodoni Moda',serif; font-size:17px; border-bottom:1px solid #333; margin-bottom:8px;}
-  @media (max-width:820px){ .sb-brand{display:none;} }
-  .sb-link{
-    background:none; border:none; color:#B8B4AC; text-align:left; padding:13px 22px;
-    font-size:13px; letter-spacing:.02em; cursor:pointer; display:flex; align-items:center; gap:10px;
-    border-left:2px solid transparent; white-space:nowrap;
-  }
-  .sb-link:hover{color:#fff;}
-  .sb-link.active{color:#fff; background:rgba(255,255,255,.06); border-left-color:var(--signal);}
-  @media (max-width:820px){ .sb-link{border-left:none; border-bottom:2px solid transparent; padding:10px 14px;} .sb-link.active{border-bottom-color:var(--signal);} }
-  .sb-foot{margin-top:auto; padding:16px 22px 0;}
-  @media (max-width:820px){ .sb-foot{display:none;} }
-  .sb-foot button{background:none; border:1px solid #444; color:#B8B4AC; padding:8px 12px; font-size:11px; cursor:pointer; width:100%;}
-  .sb-foot button:hover{border-color:var(--signal); color:#fff;}
-
-  .main{padding:32px clamp(20px,4vw,52px) 100px;}
-  .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; gap:12px; flex-wrap:wrap;}
-  .status-pill{font-family:'Space Mono',monospace; font-size:11px; padding:6px 12px; border-radius:20px; background:var(--paper-dim); color:var(--ink-soft);}
-  .status-pill.ok{background:var(--ok-soft); color:var(--ok);}
-  .status-pill.err{background:var(--signal-soft); color:var(--signal);}
-
-  .panel{display:none;}
-  .panel.active{display:block;}
-  .card{background:#fff; border:1px solid var(--line); padding:26px; margin-bottom:20px;}
-  .card h2{font-size:20px; margin-bottom:4px;}
-  .card .hint{color:var(--ink-soft); font-size:13px; margin:4px 0 20px;}
-
-  .field{margin-bottom:16px;}
-  .field label{display:block; font-family:'Space Mono',monospace; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:6px;}
-  .field input, .field textarea{
-    width:100%; padding:11px 13px; border:1px solid var(--line); background:var(--paper);
-    color:var(--ink); outline:none; transition:.15s;
-  }
-  .field input:focus, .field textarea:focus{border-color:var(--signal); background:#fff;}
-  .field textarea{resize:vertical; min-height:90px; line-height:1.6;}
-  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
-  @media (max-width:600px){ .grid2{grid-template-columns:1fr;} }
-
-  .btn{
-    font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase;
-    padding:12px 20px; border:1px solid var(--ink); background:none; color:var(--ink); cursor:pointer; transition:.2s;
-  }
-  .btn:hover{background:var(--ink); color:#fff;}
-  .btn.primary{background:var(--ink); color:#fff;}
-  .btn.primary:hover{background:var(--signal); border-color:var(--signal);}
-  .btn.danger{border-color:var(--signal); color:var(--signal);}
-  .btn.danger:hover{background:var(--signal); color:#fff;}
-  .btn:disabled{opacity:.45; cursor:not-allowed; pointer-events:none;}
-  .btn-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:22px;}
-
-  /* photo blocks */
-  .photo-box{display:flex; gap:22px; flex-wrap:wrap; align-items:flex-start;}
-  .photo-preview{width:170px; height:220px; background:var(--paper-dim); border:1px solid var(--line); overflow:hidden; flex-shrink:0;}
-  .photo-preview img{width:100%; height:100%; object-fit:cover; display:block;}
-  .photo-actions{flex:1; min-width:220px;}
-  .drop{
-    border:1.5px dashed var(--line); padding:26px; text-align:center; cursor:pointer; margin-bottom:12px;
-    color:var(--ink-soft); font-size:13px; transition:.15s;
-  }
-  .drop:hover, .drop.drag{border-color:var(--signal); background:var(--signal-soft); color:var(--ink);}
-  .drop input{display:none;}
-
-  .gallery-manage{display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:14px; margin-top:18px;}
-  .g-thumb{position:relative; aspect-ratio:3/4; overflow:hidden; border:1px solid var(--line); background:var(--paper-dim);}
-  .g-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
-  .g-thumb .del{
-    position:absolute; top:6px; right:6px; background:rgba(20,20,20,.75); color:#fff; border:none;
-    width:26px; height:26px; cursor:pointer; font-size:14px; line-height:1;
-  }
-  .g-thumb .del:hover{background:var(--signal);}
-  .g-thumb .idx{position:absolute; bottom:6px; left:6px; background:rgba(20,20,20,.65); color:#fff; font-size:9px; padding:2px 6px; font-family:'Space Mono',monospace;}
-
-  .toast{
-    position:fixed; bottom:24px; right:24px; background:var(--ink); color:#fff; padding:13px 20px;
-    font-size:13px; z-index:999; transform:translateY(120%); transition:transform .3s ease; max-width:340px;
-  }
-  .toast.show{transform:translateY(0);}
-  .toast.err{background:var(--signal);}
-  .toast.ok{background:var(--ok);}
-
-  /* ---------- Login screen ---------- */
-  .login-screen{
-    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
-  }
-  .login-card{width:100%; max-width:440px; border:1px solid var(--line); padding:36px; background:#fff;}
-  .login-card h1{font-size:24px; margin-bottom:6px;}
-  .login-card p.hint{color:var(--ink-soft); font-size:13px; line-height:1.6; margin:8px 0 24px;}
-  .login-card .field{margin-bottom:14px;}
-  .login-note{
-    font-size:12px; color:var(--ink-soft); background:var(--paper-dim); padding:12px 14px; line-height:1.6;
-    margin-top:18px; border-left:2px solid var(--signal);
-  }
-  .spinner{
-    display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,.4);
-    border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; vertical-align:-2px; margin-right:6px;
-  }
-  @keyframes spin{to{transform:rotate(360deg);}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Portfolio Model</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="bg-gray-100 text-gray-800 font-sans antialiased">
 
-<!-- ============ LOGIN / CONNECT SCREEN ============ -->
-<div class="login-screen" id="loginScreen">
-  <div class="login-card">
-    <h1>Kelola Portfolio</h1>
-    <p class="hint">Hubungkan ke repo GitHub tempat <code>index.html</code> &amp; <code>data.json</code> kamu berada.</p>
-
-    <div class="field">
-      <label>GitHub Username / Organisasi</label>
-      <input type="text" id="inOwner" placeholder="contoh: aria-wijaya">
-    </div>
-    <div class="field">
-      <label>Nama Repository</label>
-      <input type="text" id="inRepo" placeholder="contoh: model-portfolio">
-    </div>
-    <div class="field">
-      <label>Branch</label>
-      <input type="text" id="inBranch" placeholder="main" value="main">
-    </div>
-    <div class="field">
-      <label>Personal Access Token</label>
-      <input type="password" id="inToken" placeholder="github_pat_...">
-    </div>
-
-    <div class="btn-row" style="margin-top:8px;">
-      <button class="btn primary" id="btnConnect">Hubungkan</button>
-    </div>
-    <div id="loginError" style="color:var(--signal); font-size:13px; margin-top:12px; display:none;"></div>
-
-    <div class="login-note">
-      <strong>Cara membuat token:</strong> GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens → New token. Batasi <em>Repository access</em> hanya ke repo ini, dan beri permission <strong>Contents: Read and write</strong>. Token disimpan hanya di browser kamu (localStorage) — jangan bagikan halaman ini ke orang lain.
-    </div>
-  </div>
-</div>
-
-<!-- ============ DASHBOARD ============ -->
-<div class="app" id="app">
-  <aside class="sidebar">
-    <div class="sb-brand">Dashboard</div>
-    <button class="sb-link active" data-panel="profile">Profil &amp; Bio</button>
-    <button class="sb-link" data-panel="compcard">Compcard</button>
-    <button class="sb-link" data-panel="mainphoto">Foto Utama</button>
-    <button class="sb-link" data-panel="gallery">Gallery</button>
-    <button class="sb-link" data-panel="contact">Kontak</button>
-    <div class="sb-foot">
-      <button id="btnDisconnect">Putuskan Koneksi</button>
-    </div>
-  </aside>
-
-  <main class="main">
-    <div class="topbar">
-      <h1 style="font-size:22px;">Kelola Portfolio</h1>
-      <span class="status-pill" id="statusPill">memuat…</span>
-    </div>
-
-    <!-- PROFILE -->
-    <section class="panel active" data-panel="profile">
-      <div class="card">
-        <h2>Profil &amp; Bio</h2>
-        <p class="hint">Informasi utama yang tampil di hero section halaman portfolio.</p>
-        <div class="field"><label>Nama</label><input type="text" id="pName"></div>
-        <div class="grid2">
-          <div class="field"><label>Tagline</label><input type="text" id="pTagline" placeholder="Fashion &amp; Editorial Model"></div>
-          <div class="field"><label>Lokasi</label><input type="text" id="pLocation" placeholder="Jakarta, Indonesia"></div>
-        </div>
-        <div class="field"><label>Bio Singkat</label><textarea id="pBio"></textarea></div>
-        <div class="field"><label>Kalimat Ketersediaan (muncul di bagian kontak)</label><input type="text" id="pAvailability" placeholder="Available for bookings worldwide"></div>
-        <div class="btn-row"><button class="btn primary" id="saveProfile">Simpan Perubahan</button></div>
-      </div>
-    </section>
-
-    <!-- COMPCARD -->
-    <section class="panel" data-panel="compcard">
-      <div class="card">
-        <h2>Data Compcard</h2>
-        <p class="hint">Ukuran tubuh standar yang tampil di panel compcard.</p>
-        <div class="grid2">
-          <div class="field"><label>Height</label><input type="text" id="ccHeight" placeholder="170 cm"></div>
-          <div class="field"><label>Bust / Chest</label><input type="text" id="ccBust" placeholder="80 cm"></div>
-          <div class="field"><label>Waist</label><input type="text" id="ccWaist" placeholder="60 cm"></div>
-          <div class="field"><label>Hips</label><input type="text" id="ccHips" placeholder="86 cm"></div>
-          <div class="field"><label>Shoe Size</label><input type="text" id="ccShoe" placeholder="38 EU"></div>
-          <div class="field"><label>Dress Size</label><input type="text" id="ccDress" placeholder="S"></div>
-          <div class="field"><label>Hair</label><input type="text" id="ccHair" placeholder="Black"></div>
-          <div class="field"><label>Eyes</label><input type="text" id="ccEyes" placeholder="Brown"></div>
-        </div>
-        <div class="btn-row"><button class="btn primary" id="saveCompcard">Simpan Perubahan</button></div>
-      </div>
-    </section>
-
-    <!-- MAIN PHOTO -->
-    <section class="panel" data-panel="mainphoto">
-      <div class="card">
-        <h2>Foto Utama</h2>
-        <p class="hint">Dipakai untuk hero &amp; foto compcard. Otomatis dikompres sebelum diupload.</p>
-        <div class="photo-box">
-          <div class="photo-preview"><img id="mainPhotoPreview" src="" alt="Foto utama"></div>
-          <div class="photo-actions">
-            <label class="drop" id="mainDrop">
-              Klik atau drag foto ke sini untuk mengganti foto utama
-              <input type="file" id="mainPhotoInput" accept="image/*">
-            </label>
-            <div class="btn-row" style="margin-top:0;">
-              <button class="btn danger" id="deleteMainPhoto">Hapus Foto Utama</button>
+    <!-- Navbar -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-30">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="font-bold text-xl text-gray-900"><i class="fas fa-sliders-h text-amber-600 mr-2"></i>Dashboard Portfolio</h1>
+            <div class="flex items-center gap-3">
+                <a href="index.html" target="_blank" class="px-4 py-2 border border-gray-300 rounded text-xs font-semibold hover:bg-gray-50"><i class="fas fa-external-link-alt mr-1"></i> Pratinjau</a>
+                <button onclick="saveAllData()" class="px-5 py-2 bg-gray-800 text-white rounded text-xs font-semibold hover:bg-gray-900 shadow-sm"><i class="fas fa-save mr-1"></i> Simpan Draf</button>
             </div>
-          </div>
         </div>
-      </div>
-    </section>
+    </header>
 
-    <!-- GALLERY -->
-    <section class="panel" data-panel="gallery">
-      <div class="card">
-        <h2>Gallery Portfolio</h2>
-        <p class="hint">Upload beberapa foto sekaligus. Setiap foto otomatis dikompres agar situs tetap ringan.</p>
-        <label class="drop" id="galDrop">
-          Klik atau drag foto (bisa lebih dari satu) untuk ditambahkan ke gallery
-          <input type="file" id="galInput" accept="image/*" multiple>
-        </label>
-        <div class="gallery-manage" id="galManage"></div>
-      </div>
-    </section>
+    <div class="max-w-6xl mx-auto px-6 py-8">
+        
+        <!-- Status Notification -->
+        <div id="status-banner" class="hidden mb-6 p-4 rounded text-sm"></div>
 
-    <!-- CONTACT -->
-    <section class="panel" data-panel="contact">
-      <div class="card">
-        <h2>Data Kontak</h2>
-        <p class="hint">Tampil sebagai tombol/tautan di bagian booking halaman portfolio.</p>
-        <div class="grid2">
-          <div class="field"><label>Email</label><input type="text" id="cEmail" placeholder="email@contoh.com"></div>
-          <div class="field"><label>WhatsApp (format: 62812xxxxxxx)</label><input type="text" id="cWhatsapp" placeholder="6281234567890"></div>
-          <div class="field"><label>Instagram</label><input type="text" id="cInstagram" placeholder="@username"></div>
-          <div class="field"><label>Telepon</label><input type="text" id="cPhone" placeholder="+62 812 xxxx xxxx"></div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Panel: Profile & Compcard -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- General Info -->
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <h2 class="font-bold text-lg text-gray-900 mb-4 pb-2 border-b"><i class="fas fa-user mr-2 text-amber-600"></i> Informasi Profil Utama</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-gray-600 mb-1">Nama Lengkap Model</label>
+                            <input type="text" id="input-name" class="w-full px-3 py-2 border rounded text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-gray-600 mb-1">Kategori / Tagline</label>
+                            <input type="text" id="input-category" class="w-full px-3 py-2 border rounded text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-gray-600 mb-1">Bio Singkat</label>
+                            <textarea id="input-bio" rows="3" class="w-full px-3 py-2 border rounded text-sm focus:ring-2 focus:ring-amber-500 outline-none"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-gray-600 mb-1">Foto Utama (Primary Photo)</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="input-primary-photo" placeholder="https://..." class="w-full px-3 py-2 border rounded text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                                <label class="px-4 py-2 bg-gray-200 text-gray-700 text-xs font-semibold rounded cursor-pointer hover:bg-gray-300 flex items-center shrink-0">
+                                    Upload <input type="file" accept="image/*" class="hidden" onchange="handleFileUpload(event, 'input-primary-photo', 'preview-primary')">
+                                </label>
+                            </div>
+                            <div class="mt-3">
+                                <img id="preview-primary" src="" class="h-40 object-cover rounded border">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compcard Specifications -->
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <h2 class="font-bold text-lg text-gray-900 mb-4 pb-2 border-b"><i class="fas fa-ruler-combined mr-2 text-amber-600"></i> Data Digital Compcard</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Tinggi Badan</label>
+                            <input type="text" id="comp-height" placeholder="172 cm" class="w-full px-3 py-2 border rounded text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Berat Badan</label>
+                            <input type="text" id="comp-weight" placeholder="52 kg" class="w-full px-3 py-2 border rounded text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Lingkar Dada</label>
+                            <input type="text" id="comp-bust" placeholder="84 cm" class="w-full px-3 py-2 border rounded text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Lingkar Pinggang</label>
+                            <input type="text" id="comp-waist" placeholder="64 cm" class="w-full px-3 py-2 border rounded text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Lingkar Pinggul</label>
+                            <input type="text" id="comp-hips" placeholder="90 cm" class="w-full px-3 py-2 border rounded text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Ukuran Sepatu</label>
+                            <input type="text" id="comp-shoe" placeholder="39 EU" class="w-full px-3 py-2 border rounded text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Style Hijab</label>
+                            <input type="text" id="comp-hijab" placeholder="Modern / Clean Hijab" class="w-full px-3 py-2 border rounded text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Warna Mata</label>
+                            <input type="text" id="comp-eyes" placeholder="Cokelat Tua" class="w-full px-3 py-2 border rounded text-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Data -->
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <h2 class="font-bold text-lg text-gray-900 mb-4 pb-2 border-b"><i class="fas fa-address-book mr-2 text-amber-600"></i> Informasi Kontak & Domisili</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">No WhatsApp (Pakai Kode Negara)</label>
+                            <input type="text" id="contact-wa" placeholder="6281234567890" class="w-full px-3 py-2 border rounded text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Email Booking</label>
+                            <input type="email" id="contact-email" placeholder="email@domain.com" class="w-full px-3 py-2 border rounded text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Username Instagram (tanpa @)</label>
+                            <input type="text" id="contact-ig" placeholder="username" class="w-full px-3 py-2 border rounded text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Domisili / Wilayah Kerjasama</label>
+                            <input type="text" id="contact-location" placeholder="Jakarta, Indonesia" class="w-full px-3 py-2 border rounded text-sm">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Panel: Portfolio Gallery Manager & Deployment Sync -->
+            <div class="lg:col-span-5 space-y-6">
+
+                <!-- Gallery Manager -->
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <h2 class="font-bold text-lg text-gray-900 mb-4 pb-2 border-b flex justify-between items-center">
+                        <span><i class="fas fa-images mr-2 text-amber-600"></i> Galeri Portfolio</span>
+                    </h2>
+
+                    <!-- Form Add New Image -->
+                    <div class="bg-gray-50 p-4 rounded border mb-4 space-y-3">
+                        <h3 class="text-xs font-bold uppercase text-gray-700">Tambah Foto Baru</h3>
+                        <div>
+                            <input type="text" id="new-photo-title" placeholder="Judul / Nama Client / Brand" class="w-full px-3 py-1.5 border rounded text-xs mb-2">
+                            <div class="flex gap-2">
+                                <input type="text" id="new-photo-url" placeholder="URL Foto atau Upload..." class="w-full px-3 py-1.5 border rounded text-xs">
+                                <label class="px-3 py-1.5 bg-gray-200 text-gray-700 text-xs font-semibold rounded cursor-pointer hover:bg-gray-300 flex items-center shrink-0">
+                                    Upload <input type="file" accept="image/*" class="hidden" onchange="handleFileUpload(event, 'new-photo-url', null)">
+                                </label>
+                            </div>
+                        </div>
+                        <button onclick="addGalleryItem()" class="w-full py-2 bg-gray-900 text-white rounded text-xs font-semibold hover:bg-gray-800"><i class="fas fa-plus mr-1"></i> Tambahkan ke Galeri</button>
+                    </div>
+
+                    <!-- Gallery List -->
+                    <div id="dashboard-gallery-list" class="space-y-3 max-h-96 overflow-y-auto pr-1">
+                        <!-- Dynamic Item List -->
+                    </div>
+                </div>
+
+                <!-- GitHub Integration Panel -->
+                <div class="bg-amber-50 p-6 rounded-lg shadow-sm border border-amber-200">
+                    <h2 class="font-bold text-sm text-amber-900 mb-2"><i class="fab fa-github mr-2"></i> Integrasi Deploy GitHub Pages</h2>
+                    
+                    <!-- State 1: Form Input Kredensial -->
+                    <div id="gh-config-form" class="space-y-3">
+                        <p class="text-xs text-amber-800 mb-3">Masukkan kredensial GitHub Anda <b>sekali saja</b>. Data akan tersimpan aman di browser ini.</p>
+                        <input type="text" id="gh-user" placeholder="GitHub Username (cth: username)" class="w-full px-3 py-2 border rounded text-xs bg-white">
+                        <input type="text" id="gh-repo" placeholder="Nama Repositori (cth: hijab-portfolio)" class="w-full px-3 py-2 border rounded text-xs bg-white">
+                        <input type="password" id="gh-token" placeholder="GitHub Personal Access Token (PAT)" class="w-full px-3 py-2 border rounded text-xs bg-white">
+                        <button onclick="saveGitHubCredentials()" class="w-full py-2.5 mt-2 bg-amber-800 text-white rounded text-xs font-bold hover:bg-amber-900">
+                            <i class="fas fa-key mr-1"></i> Simpan Akses GitHub
+                        </button>
+                    </div>
+
+                    <!-- State 2: Status Terhubung -->
+                    <div id="gh-connected-status" class="hidden space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-emerald-100 border border-emerald-300 rounded text-emerald-800 text-xs font-medium">
+                            <span><i class="fas fa-check-circle mr-1 text-emerald-600"></i> Terhubung: <strong id="status-repo-name">-</strong></span>
+                            <button onclick="resetGitHubCredentials()" class="text-emerald-900 underline hover:text-red-600 text-[11px]">Ubah Token</button>
+                        </div>
+                        
+                        <div class="flex gap-2 mt-4">
+                            <button onclick="commitToGitHub()" class="flex-1 py-3 bg-amber-700 text-white rounded text-xs font-bold hover:bg-amber-800 shadow-sm flex items-center justify-center gap-2 transition transform active:scale-95">
+                                <i class="fas fa-cloud-upload-alt text-base"></i> Update & Push ke GitHub
+                            </button>
+                            <button onclick="downloadJSON()" class="px-4 py-3 border border-amber-700 text-amber-800 rounded text-xs font-semibold hover:bg-amber-100" title="Download data.json Manual">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
         </div>
-        <div class="field"><label>Agency (opsional)</label><input type="text" id="cAgency"></div>
-        <div class="btn-row"><button class="btn primary" id="saveContact">Simpan Perubahan</button></div>
-      </div>
-    </section>
+    </div>
 
-  </main>
-</div>
+    <!-- Scripts -->
+    <script>
+        let currentData = {
+            name: "", category: "", bio: "", primaryPhoto: "",
+            compcard: {}, gallery: [], contact: {}
+        };
 
-<div class="toast" id="toast"></div>
+        // 1. Initialize Data on Load
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedData = localStorage.getItem('hijab_model_portfolio_data');
+            if(savedData) {
+                currentData = JSON.parse(savedData);
+                populateDashboard(currentData);
+            } else {
+                fetch('data.json').then(res => res.json()).then(data => {
+                    currentData = data;
+                    populateDashboard(data);
+                }).catch(() => {
+                    populateDashboard(currentData);
+                });
+            }
 
-<script>
-(function(){
-  const $ = (s,ctx=document)=>ctx.querySelector(s);
-  const $$ = (s,ctx=document)=>Array.from(ctx.querySelectorAll(s));
-
-  // ---------------- State ----------------
-  let cfg = null;        // {owner, repo, branch, token}
-  let dataObj = null;    // parsed data.json
-  let dataSha = null;    // sha of data.json on GitHub (for updates)
-
-  const LS_KEY = 'mp_gh_config';
-
-  // ---------------- Toast ----------------
-  let toastTimer;
-  function toast(msg, type=''){
-    const el = $('#toast');
-    el.textContent = msg;
-    el.className = 'toast show' + (type ? ' ' + type : '');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(()=> el.classList.remove('show'), 3800);
-  }
-  function setStatus(text, type=''){
-    const el = $('#statusPill');
-    el.textContent = text;
-    el.className = 'status-pill' + (type ? ' ' + type : '');
-  }
-
-  // ---------------- GitHub API helpers ----------------
-  const API = 'https://api.github.com';
-  function ghHeaders(){
-    return {
-      'Authorization': 'Bearer ' + cfg.token,
-      'Accept': 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28'
-    };
-  }
-  function apiUrl(path){
-    return `${API}/repos/${cfg.owner}/${cfg.repo}/contents/${path}`;
-  }
-  async function ghGetFile(path){
-    const res = await fetch(apiUrl(path) + `?ref=${encodeURIComponent(cfg.branch)}&_=${Date.now()}`, {headers: ghHeaders()});
-    if(res.status === 404) return null;
-    if(!res.ok) throw new Error(`Gagal mengambil ${path} (${res.status})`);
-    return res.json(); // {content(base64), sha, ...}
-  }
-  async function ghPutFile(path, base64Content, sha, message){
-    const body = {message, content: base64Content, branch: cfg.branch};
-    if(sha) body.sha = sha;
-    const res = await fetch(apiUrl(path), {method:'PUT', headers:{...ghHeaders(),'Content-Type':'application/json'}, body: JSON.stringify(body)});
-    if(!res.ok){ const t = await res.text(); throw new Error(`Gagal menyimpan ${path}: ${res.status} ${t.slice(0,200)}`); }
-    return res.json();
-  }
-  async function ghDeleteFile(path, sha, message){
-    const res = await fetch(apiUrl(path), {method:'DELETE', headers:{...ghHeaders(),'Content-Type':'application/json'}, body: JSON.stringify({message, sha, branch: cfg.branch})});
-    if(!res.ok){ const t = await res.text(); throw new Error(`Gagal menghapus ${path}: ${res.status} ${t.slice(0,200)}`); }
-    return res.json();
-  }
-
-  function utf8ToBase64(str){
-    return btoa(unescape(encodeURIComponent(str)));
-  }
-
-  // ---------------- Image compression ----------------
-  function compressImage(file, maxDim=1600, quality=0.82){
-    return new Promise((resolve, reject)=>{
-      const img = new Image();
-      const url = URL.createObjectURL(file);
-      img.onload = ()=>{
-        let {width, height} = img;
-        if(width > height && width > maxDim){ height = Math.round(height * maxDim/width); width = maxDim; }
-        else if(height > maxDim){ width = Math.round(width * maxDim/height); height = maxDim; }
-        const canvas = document.createElement('canvas');
-        canvas.width = width; canvas.height = height;
-        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-        canvas.toBlob((blob)=>{
-          URL.revokeObjectURL(url);
-          if(!blob) return reject(new Error('Kompresi gagal'));
-          resolve(blob);
-        }, 'image/jpeg', quality);
-      };
-      img.onerror = reject;
-      img.src = url;
-    });
-  }
-  function blobToBase64(blob){
-    return new Promise((resolve,reject)=>{
-      const r = new FileReader();
-      r.onload = ()=> resolve(r.result.split(',')[1]);
-      r.onerror = reject;
-      r.readAsDataURL(blob);
-    });
-  }
-  function blobToUrl(blob){ return URL.createObjectURL(blob); }
-  function slugify(name){
-    return name.toLowerCase().replace(/\.[^.]+$/,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,40) || 'photo';
-  }
-
-  // ---------------- data.json save ----------------
-  async function saveData(message){
-    const content = utf8ToBase64(JSON.stringify(dataObj, null, 2));
-    const result = await ghPutFile('data.json', content, dataSha, message);
-    dataSha = result.content.sha;
-  }
-
-  // ---------------- Connect ----------------
-  async function testConnection(){
-    const res = await fetch(`${API}/repos/${cfg.owner}/${cfg.repo}`, {headers: ghHeaders()});
-    if(!res.ok) throw new Error(res.status === 404 ? 'Repo tidak ditemukan / token tidak punya akses.' : `Koneksi gagal (${res.status})`);
-  }
-
-  async function loadData(){
-    const file = await ghGetFile('data.json');
-    if(!file){
-      // belum ada data.json -> buat dari template
-      dataObj = {
-        profile:{name:'Nama Model',tagline:'',location:'',bio:'',availability:'Available for bookings'},
-        mainPhoto:'images/main.jpg', compcard:{}, gallery:[], contact:{}
-      };
-      const content = utf8ToBase64(JSON.stringify(dataObj, null, 2));
-      const result = await ghPutFile('data.json', content, null, 'Inisialisasi data.json dari dashboard');
-      dataSha = result.content.sha;
-      toast('data.json baru dibuat di repo.', 'ok');
-    } else {
-      dataObj = JSON.parse(decodeURIComponent(escape(atob(file.content.replace(/\n/g,'')))));
-      dataSha = file.sha;
-    }
-    if(!dataObj.profile) dataObj.profile = {};
-    if(!dataObj.compcard) dataObj.compcard = {};
-    if(!dataObj.gallery) dataObj.gallery = [];
-    if(!dataObj.contact) dataObj.contact = {};
-    if(!dataObj.mainPhoto) dataObj.mainPhoto = 'images/main.jpg';
-  }
-
-  function fillForm(){
-    const p = dataObj.profile, c = dataObj.compcard, k = dataObj.contact;
-    $('#pName').value = p.name || '';
-    $('#pTagline').value = p.tagline || '';
-    $('#pLocation').value = p.location || '';
-    $('#pBio').value = p.bio || '';
-    $('#pAvailability').value = p.availability || '';
-
-    $('#ccHeight').value = c.height || ''; $('#ccBust').value = c.bust || '';
-    $('#ccWaist').value = c.waist || ''; $('#ccHips').value = c.hips || '';
-    $('#ccShoe').value = c.shoe || ''; $('#ccDress').value = c.dress || '';
-    $('#ccHair').value = c.hair || ''; $('#ccEyes').value = c.eyes || '';
-
-    $('#cEmail').value = k.email || ''; $('#cWhatsapp').value = k.whatsapp || '';
-    $('#cInstagram').value = k.instagram || ''; $('#cPhone').value = k.phone || '';
-    $('#cAgency').value = k.agency || '';
-
-    $('#mainPhotoPreview').src = dataObj.mainPhoto ? dataObj.mainPhoto + '?_=' + Date.now() : '';
-    renderGalleryManage();
-  }
-
-  function renderGalleryManage(){
-    const wrap = $('#galManage');
-    wrap.innerHTML = '';
-    dataObj.gallery.forEach((item, i)=>{
-      const src = typeof item === 'string' ? item : item.src;
-      const div = document.createElement('div');
-      div.className = 'g-thumb';
-      div.innerHTML = `<img src="${src}" alt=""><span class="idx mono">${i+1}</span><button class="del" data-i="${i}" title="Hapus foto">✕</button>`;
-      wrap.appendChild(div);
-    });
-    $$('.g-thumb .del', wrap).forEach(btn=>{
-      btn.addEventListener('click', ()=> deleteGalleryPhoto(parseInt(btn.dataset.i,10)));
-    });
-  }
-
-  // ---------------- Save handlers ----------------
-  async function withBusy(btn, fn){
-    const original = btn.textContent;
-    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Menyimpan…';
-    try{ await fn(); toast('Tersimpan ke GitHub.', 'ok'); }
-    catch(e){ console.error(e); toast(e.message || 'Terjadi kesalahan.', 'err'); }
-    finally{ btn.disabled = false; btn.textContent = original; }
-  }
-
-  $('#saveProfile').addEventListener('click', (e)=> withBusy(e.target, async ()=>{
-    dataObj.profile = {
-      name: $('#pName').value.trim(), tagline: $('#pTagline').value.trim(),
-      location: $('#pLocation').value.trim(), bio: $('#pBio').value.trim(),
-      availability: $('#pAvailability').value.trim()
-    };
-    await saveData('Update profil & bio');
-  }));
-
-  $('#saveCompcard').addEventListener('click', (e)=> withBusy(e.target, async ()=>{
-    dataObj.compcard = {
-      height: $('#ccHeight').value.trim(), bust: $('#ccBust').value.trim(),
-      waist: $('#ccWaist').value.trim(), hips: $('#ccHips').value.trim(),
-      shoe: $('#ccShoe').value.trim(), dress: $('#ccDress').value.trim(),
-      hair: $('#ccHair').value.trim(), eyes: $('#ccEyes').value.trim()
-    };
-    await saveData('Update data compcard');
-  }));
-
-  $('#saveContact').addEventListener('click', (e)=> withBusy(e.target, async ()=>{
-    dataObj.contact = {
-      email: $('#cEmail').value.trim(), whatsapp: $('#cWhatsapp').value.trim(),
-      instagram: $('#cInstagram').value.trim(), phone: $('#cPhone').value.trim(),
-      agency: $('#cAgency').value.trim()
-    };
-    await saveData('Update data kontak');
-  }));
-
-  // ---------------- Main photo ----------------
-  const mainDrop = $('#mainDrop'), mainInput = $('#mainPhotoInput');
-  ['dragover','dragleave','drop'].forEach(evt=>{
-    mainDrop.addEventListener(evt, (e)=>{
-      e.preventDefault();
-      mainDrop.classList.toggle('drag', evt === 'dragover');
-      if(evt === 'drop' && e.dataTransfer.files[0]) handleMainPhoto(e.dataTransfer.files[0]);
-    });
-  });
-  mainInput.addEventListener('change', ()=>{ if(mainInput.files[0]) handleMainPhoto(mainInput.files[0]); });
-
-  async function handleMainPhoto(file){
-    setStatus('mengupload foto…');
-    try{
-      const blob = await compressImage(file, 1600, 0.85);
-      $('#mainPhotoPreview').src = blobToUrl(blob);
-      const base64 = await blobToBase64(blob);
-      const existing = await ghGetFile('images/main.jpg');
-      await ghPutFile('images/main.jpg', base64, existing ? existing.sha : null, 'Update foto utama');
-      dataObj.mainPhoto = 'images/main.jpg';
-      await saveData('Set foto utama');
-      toast('Foto utama berhasil diupdate.', 'ok');
-    }catch(e){ console.error(e); toast(e.message, 'err'); }
-    finally{ setStatus('Terhubung', 'ok'); mainInput.value=''; }
-  }
-
-  $('#deleteMainPhoto').addEventListener('click', async ()=>{
-    if(!confirm('Hapus foto utama dari repo?')) return;
-    try{
-      const existing = await ghGetFile('images/main.jpg');
-      if(existing) await ghDeleteFile('images/main.jpg', existing.sha, 'Hapus foto utama');
-      dataObj.mainPhoto = '';
-      await saveData('Hapus referensi foto utama');
-      $('#mainPhotoPreview').src = '';
-      toast('Foto utama dihapus.', 'ok');
-    }catch(e){ toast(e.message, 'err'); }
-  });
-
-  // ---------------- Gallery ----------------
-  const galDrop = $('#galDrop'), galInput = $('#galInput');
-  ['dragover','dragleave','drop'].forEach(evt=>{
-    galDrop.addEventListener(evt, (e)=>{
-      e.preventDefault();
-      galDrop.classList.toggle('drag', evt === 'dragover');
-      if(evt === 'drop' && e.dataTransfer.files.length) handleGalleryUpload(Array.from(e.dataTransfer.files));
-    });
-  });
-  galInput.addEventListener('change', ()=>{ if(galInput.files.length) handleGalleryUpload(Array.from(galInput.files)); galInput.value=''; });
-
-  async function handleGalleryUpload(files){
-    setStatus(`mengupload ${files.length} foto…`);
-    for(const file of files){
-      try{
-        const blob = await compressImage(file, 1800, 0.82);
-        const base64 = await blobToBase64(blob);
-        const path = `images/gallery/${Date.now()}-${slugify(file.name)}.jpg`;
-        await ghPutFile(path, base64, null, 'Tambah foto gallery: ' + file.name);
-        dataObj.gallery.push({src: path, caption: ''});
-        await saveData('Update daftar gallery');
-        renderGalleryManage();
-      }catch(e){ console.error(e); toast(`Gagal upload ${file.name}: ${e.message}`, 'err'); }
-    }
-    setStatus('Terhubung', 'ok');
-    toast('Upload gallery selesai.', 'ok');
-  }
-
-  async function deleteGalleryPhoto(index){
-    const item = dataObj.gallery[index];
-    if(!item) return;
-    if(!confirm('Hapus foto ini dari gallery?')) return;
-    const src = typeof item === 'string' ? item : item.src;
-    try{
-      const existing = await ghGetFile(src);
-      if(existing) await ghDeleteFile(src, existing.sha, 'Hapus foto gallery');
-      dataObj.gallery.splice(index,1);
-      await saveData('Update daftar gallery setelah hapus foto');
-      renderGalleryManage();
-      toast('Foto dihapus.', 'ok');
-    }catch(e){ toast(e.message, 'err'); }
-  }
-
-  // ---------------- Sidebar nav ----------------
-  $$('.sb-link').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      $$('.sb-link').forEach(b=>b.classList.remove('active'));
-      $$('.panel').forEach(p=>p.classList.remove('active'));
-      btn.classList.add('active');
-      $(`.panel[data-panel="${btn.dataset.panel}"]`).classList.add('active');
-    });
-  });
-
-  // ---------------- Connect / disconnect ----------------
-  $('#btnConnect').addEventListener('click', async ()=>{
-    const owner = $('#inOwner').value.trim();
-    const repo = $('#inRepo').value.trim();
-    const branch = $('#inBranch').value.trim() || 'main';
-    const token = $('#inToken').value.trim();
-    const errEl = $('#loginError');
-    errEl.style.display = 'none';
-    if(!owner || !repo || !token){
-      errEl.textContent = 'Lengkapi username, nama repo, dan token.';
-      errEl.style.display = 'block';
-      return;
-    }
-    const btn = $('#btnConnect');
-    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Menghubungkan…';
-    try{
-      cfg = {owner, repo, branch, token};
-      await testConnection();
-      localStorage.setItem(LS_KEY, JSON.stringify(cfg));
-      await boot();
-    }catch(e){
-      errEl.textContent = e.message;
-      errEl.style.display = 'block';
-      cfg = null;
-    }finally{
-      btn.disabled = false; btn.textContent = 'Hubungkan';
-    }
-  });
-
-  $('#btnDisconnect').addEventListener('click', ()=>{
-    if(!confirm('Putuskan koneksi? Token akan dihapus dari browser ini.')) return;
-    localStorage.removeItem(LS_KEY);
-    location.reload();
-  });
-
-  async function boot(){
-    setStatus('memuat data…');
-    await loadData();
-    fillForm();
-    $('#loginScreen').style.display = 'none';
-    $('#app').classList.add('ready');
-    setStatus('Terhubung — ' + cfg.owner + '/' + cfg.repo, 'ok');
-  }
-
-  // ---------------- Init ----------------
-  (function init(){
-    const saved = localStorage.getItem(LS_KEY);
-    if(saved){
-      try{
-        cfg = JSON.parse(saved);
-        $('#inOwner').value = cfg.owner; $('#inRepo').value = cfg.repo;
-        $('#inBranch').value = cfg.branch; $('#inToken').value = cfg.token;
-        testConnection().then(boot).catch((e)=>{
-          $('#loginError').textContent = 'Sesi tersimpan tidak valid: ' + e.message;
-          $('#loginError').style.display = 'block';
+            // Check if GitHub token exists
+            checkSavedGitHubCredentials();
         });
-      }catch(e){ localStorage.removeItem(LS_KEY); }
-    }
-  })();
-})();
-</script>
+
+        // 2. Populate Form with Data
+        function populateDashboard(data) {
+            document.getElementById('input-name').value = data.name || '';
+            document.getElementById('input-category').value = data.category || '';
+            document.getElementById('input-bio').value = data.bio || '';
+            document.getElementById('input-primary-photo').value = data.primaryPhoto || '';
+            document.getElementById('preview-primary').src = data.primaryPhoto || '';
+
+            const c = data.compcard || {};
+            document.getElementById('comp-height').value = c.height || '';
+            document.getElementById('comp-weight').value = c.weight || '';
+            document.getElementById('comp-bust').value = c.bust || '';
+            document.getElementById('comp-waist').value = c.waist || '';
+            document.getElementById('comp-hips').value = c.hips || '';
+            document.getElementById('comp-shoe').value = c.shoe || '';
+            document.getElementById('comp-hijab').value = c.hijab || '';
+            document.getElementById('comp-eyes').value = c.eyes || '';
+
+            const cnt = data.contact || {};
+            document.getElementById('contact-wa').value = cnt.whatsapp || '';
+            document.getElementById('contact-email').value = cnt.email || '';
+            document.getElementById('contact-ig').value = cnt.instagram || '';
+            document.getElementById('contact-location').value = cnt.location || '';
+
+            renderGalleryList();
+        }
+
+        // 3. Update 'currentData' from Form
+        function collectFormData() {
+            currentData.name = document.getElementById('input-name').value;
+            currentData.category = document.getElementById('input-category').value;
+            currentData.bio = document.getElementById('input-bio').value;
+            currentData.primaryPhoto = document.getElementById('input-primary-photo').value;
+
+            currentData.compcard = {
+                height: document.getElementById('comp-height').value,
+                weight: document.getElementById('comp-weight').value,
+                bust: document.getElementById('comp-bust').value,
+                waist: document.getElementById('comp-waist').value,
+                hips: document.getElementById('comp-hips').value,
+                shoe: document.getElementById('comp-shoe').value,
+                hijab: document.getElementById('comp-hijab').value,
+                eyes: document.getElementById('comp-eyes').value,
+            };
+
+            currentData.contact = {
+                whatsapp: document.getElementById('contact-wa').value,
+                email: document.getElementById('contact-email').value,
+                instagram: document.getElementById('contact-ig').value,
+                location: document.getElementById('contact-location').value,
+            };
+        }
+
+        // 4. Gallery Functions
+        function renderGalleryList() {
+            const container = document.getElementById('dashboard-gallery-list');
+            if(!currentData.gallery) currentData.gallery = [];
+            
+            container.innerHTML = currentData.gallery.map((item, index) => `
+                <div class="flex items-center gap-3 p-2 border rounded bg-white">
+                    <img src="${item.url}" class="w-12 h-12 object-cover rounded">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-semibold truncate">${item.title || 'Foto Galeri'}</p>
+                    </div>
+                    <button onclick="removeGalleryItem(${index})" class="text-red-500 hover:text-red-700 p-2 text-xs"><i class="fas fa-trash"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function addGalleryItem() {
+            const title = document.getElementById('new-photo-title').value;
+            const url = document.getElementById('new-photo-url').value;
+            if(!url) return alert('URL foto tidak boleh kosong!');
+            
+            if(!currentData.gallery) currentData.gallery = [];
+            currentData.gallery.push({ title: title || 'Photoshoot', url: url });
+            
+            document.getElementById('new-photo-title').value = '';
+            document.getElementById('new-photo-url').value = '';
+            renderGalleryList();
+        }
+
+        function removeGalleryItem(index) {
+            currentData.gallery.splice(index, 1);
+            renderGalleryList();
+        }
+
+        // 5. Image Compression & Base64 Converter
+        function handleFileUpload(event, targetInputId, previewImgId) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const maxDim = 1200;
+                    let w = img.width, h = img.height;
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) { h *= maxDim / w; w = maxDim; }
+                        else { w *= maxDim / h; h = maxDim; }
+                    }
+                    canvas.width = w; canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                    
+                    document.getElementById(targetInputId).value = resizedDataUrl;
+                    if(previewImgId) document.getElementById(previewImgId).src = resizedDataUrl;
+                }
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 6. Data Saving Handlers
+        function saveAllData() {
+            collectFormData();
+            localStorage.setItem('hijab_model_portfolio_data', JSON.stringify(currentData));
+            showBanner('Draf berhasil disimpan secara lokal! Anda bisa melihat di halaman pratinjau.', 'bg-gray-100 text-gray-800 border-gray-300');
+        }
+
+        function downloadJSON() {
+            collectFormData();
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentData, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", "data.json");
+            dlAnchorElem.click();
+        }
+
+        function showBanner(msg, classes) {
+            const b = document.getElementById('status-banner');
+            b.className = `mb-6 p-4 rounded text-sm border font-medium ${classes}`;
+            b.textContent = msg;
+            b.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 7. GitHub Integrations Logic
+        function checkSavedGitHubCredentials() {
+            const user = localStorage.getItem('gh_user');
+            const repo = localStorage.getItem('gh_repo');
+            const token = localStorage.getItem('gh_token');
+
+            const formEl = document.getElementById('gh-config-form');
+            const statusEl = document.getElementById('gh-connected-status');
+
+            if (user && repo && token) {
+                formEl.classList.add('hidden');
+                statusEl.classList.remove('hidden');
+                document.getElementById('status-repo-name').textContent = `${user}/${repo}`;
+            } else {
+                formEl.classList.remove('hidden');
+                statusEl.classList.add('hidden');
+            }
+        }
+
+        function saveGitHubCredentials() {
+            const user = document.getElementById('gh-user').value.trim();
+            const repo = document.getElementById('gh-repo').value.trim();
+            const token = document.getElementById('gh-token').value.trim();
+
+            if(!user || !repo || !token) {
+                return alert('Lengkapi semua data kredensial GitHub terlebih dahulu!');
+            }
+
+            localStorage.setItem('gh_user', user);
+            localStorage.setItem('gh_repo', repo);
+            localStorage.setItem('gh_token', token);
+
+            showBanner('Kredensial GitHub berhasil disimpan di browser!', 'bg-emerald-100 text-emerald-800 border-emerald-300');
+            checkSavedGitHubCredentials();
+        }
+
+        function resetGitHubCredentials() {
+            if(confirm('Apakah Anda yakin ingin menghapus token tersimpan? Anda harus login ulang nantinya.')) {
+                localStorage.removeItem('gh_user');
+                localStorage.removeItem('gh_repo');
+                localStorage.removeItem('gh_token');
+                
+                document.getElementById('gh-user').value = '';
+                document.getElementById('gh-repo').value = '';
+                document.getElementById('gh-token').value = '';
+                
+                checkSavedGitHubCredentials();
+            }
+        }
+
+        async function commitToGitHub() {
+            saveAllData();
+
+            const user = localStorage.getItem('gh_user');
+            const repo = localStorage.getItem('gh_repo');
+            const token = localStorage.getItem('gh_token');
+
+            if(!user || !repo || !token) {
+                return alert('Kredensial GitHub tidak ditemukan. Silakan masukkan token terlebih dahulu.');
+            }
+
+            showBanner('Sedang mengirim pembaruan ke GitHub Repository...', 'bg-blue-100 text-blue-800 border-blue-300');
+
+            const filePath = 'data.json';
+            const url = `https://api.github.com/repos/${user}/${repo}/contents/${filePath}`;
+            const jsonString = JSON.stringify(currentData, null, 2);
+            const contentEncoded = btoa(unescape(encodeURIComponent(jsonString)));
+
+            try {
+                let sha = "";
+                const getRes = await fetch(url, { headers: { 'Authorization': `token ${token}` } });
+                if(getRes.ok) {
+                    const fileData = await getRes.json();
+                    sha = fileData.sha;
+                }
+
+                const putRes = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: `Update portfolio content via dashboard`,
+                        content: contentEncoded,
+                        sha: sha ? sha : undefined
+                    })
+                });
+
+                if(putRes.ok) {
+                    showBanner('SUKSES! Data berhasil di-update ke GitHub. Halaman portfolio akan berubah otomatis dalam 1-2 menit.', 'bg-green-100 text-green-800 border-green-300');
+                } else {
+                    const errErr = await putRes.json();
+                    showBanner(`Gagal Sync GitHub: ${errErr.message}. Coba periksa kembali Token Anda.`, 'bg-red-100 text-red-800 border-red-300');
+                }
+            } catch(err) {
+                showBanner(`Terjadi kesalahan koneksi: ${err.message}`, 'bg-red-100 text-red-800 border-red-300');
+            }
+        }
+    </script>
 </body>
 </html>
