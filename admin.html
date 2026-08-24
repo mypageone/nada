@@ -158,16 +158,16 @@
 
                 <!-- GitHub Integration Panel -->
                 <div class="bg-amber-50 p-6 rounded-lg shadow-sm border border-amber-200">
-                    <h2 class="font-bold text-sm text-amber-900 mb-2"><i class="fab fa-github mr-2"></i> Integrasi Deploy GitHub Pages</h2>
+                    <h2 class="font-bold text-sm text-amber-900 mb-2"><i class="fab fa-github mr-2"></i> Integrasi Halaman</h2>
                     
                     <!-- State 1: Form Input Kredensial -->
                     <div id="gh-config-form" class="space-y-3">
-                        <p class="text-xs text-amber-800 mb-3">Masukkan kredensial GitHub Anda <b>sekali saja</b>. Data akan tersimpan aman di browser ini.</p>
-                        <input type="text" id="gh-user" placeholder="GitHub Username (cth: username)" class="w-full px-3 py-2 border rounded text-xs bg-white">
-                        <input type="text" id="gh-repo" placeholder="Nama Repositori (cth: hijab-portfolio)" class="w-full px-3 py-2 border rounded text-xs bg-white">
-                        <input type="password" id="gh-token" placeholder="GitHub Personal Access Token (PAT)" class="w-full px-3 py-2 border rounded text-xs bg-white">
+                        <p class="text-xs text-amber-800 mb-3">Masukkan kredensial <b>sekali saja</b>. Data akan tersimpan aman di browser ini.</p>
+                        <input type="text" id="gh-user" value="mypageone" class="w-full px-3 py-2 border rounded text-xs bg-white">
+                        <input type="text" id="gh-repo" value="nada" class="w-full px-3 py-2 border rounded text-xs bg-white">
+                        <input type="password" id="gh-token" placeholder="Personal Access Token (PAT)" class="w-full px-3 py-2 border rounded text-xs bg-white">
                         <button onclick="saveGitHubCredentials()" class="w-full py-2.5 mt-2 bg-amber-800 text-white rounded text-xs font-bold hover:bg-amber-900">
-                            <i class="fas fa-key mr-1"></i> Simpan Akses GitHub
+                            <i class="fas fa-key mr-1"></i> Simpan Akses
                         </button>
                     </div>
 
@@ -180,7 +180,7 @@
                         
                         <div class="flex gap-2 mt-4">
                             <button onclick="commitToGitHub()" class="flex-1 py-3 bg-amber-700 text-white rounded text-xs font-bold hover:bg-amber-800 shadow-sm flex items-center justify-center gap-2 transition transform active:scale-95">
-                                <i class="fas fa-cloud-upload-alt text-base"></i> Update & Push ke GitHub
+                                <i class="fas fa-cloud-upload-alt text-base"></i> Update Portfolio
                             </button>
                             <button onclick="downloadJSON()" class="px-4 py-3 border border-amber-700 text-amber-800 rounded text-xs font-semibold hover:bg-amber-100" title="Download data.json Manual">
                                 <i class="fas fa-download"></i>
