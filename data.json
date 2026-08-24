@@ -17,7 +17,12 @@
     "hair": "Hijab",
     "eyes": "Black"
   },
-  "gallery": [],
+  "gallery": [
+    {
+      "src": "images/gallery/1787554279307-1000182902.jpg",
+      "caption": ""
+    }
+  ],
   "contact": {
     "email": "email@contoh.com",
     "whatsapp": "6281234567890",
