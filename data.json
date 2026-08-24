@@ -1,0 +1,28 @@
+{
+  "profile": {
+    "name": "Nama Model",
+    "tagline": "Fashion & Editorial Model",
+    "location": "Jakarta, Indonesia",
+    "bio": "Tulis bio singkat di sini. Ceritakan pengalaman, spesialisasi (editorial, runway, commercial), dan hal yang membuatmu unik sebagai model.",
+    "availability": "Available for bookings — local & international"
+  },
+  "mainPhoto": "images/main.jpg",
+  "compcard": {
+    "height": "170 cm",
+    "bust": "80 cm",
+    "waist": "60 cm",
+    "hips": "86 cm",
+    "shoe": "38 EU",
+    "dress": "S",
+    "hair": "Black",
+    "eyes": "Brown"
+  },
+  "gallery": [],
+  "contact": {
+    "email": "email@contoh.com",
+    "whatsapp": "6281234567890",
+    "instagram": "@username",
+    "phone": "",
+    "agency": ""
+  }
+}
