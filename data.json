@@ -1,53 +1,36 @@
 {
-  "profile": {
-    "name": "Rahmah Nada",
-    "tagline": "Fashion Freelance Model",
-    "location": "Indonesia",
-    "bio": "Tulis bio singkat di sini. Ceritakan pengalaman, spesialisasi (editorial, runway, commercial), dan hal yang membuatmu unik sebagai model.",
-    "availability": "Available for bookings — local & international"
-  },
-  "mainPhoto": "images/main.jpg",
+  "name": "Amina Sarah",
+  "category": "Professional Hijab Model",
+  "bio": "Freelance Hijab Model profesional berdomisili di Jakarta dengan pengalaman lebih dari 3 tahun di industri fashion, catalogue photoshoot, dan brand ambassador.",
+  "primaryPhoto": "https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?auto=format&fit=crop&q=80&w=1000",
   "compcard": {
-    "height": "170 cm",
-    "bust": "80 cm",
-    "waist": "60 cm",
-    "hips": "86 cm",
-    "shoe": "38 EU",
-    "dress": "S",
-    "hair": "Hijab",
-    "eyes": "Black"
+    "height": "172 cm",
+    "weight": "52 kg",
+    "bust": "84 cm",
+    "waist": "64 cm",
+    "hips": "90 cm",
+    "shoe": "39 EU",
+    "hijab": "Syari / Modern Hijab",
+    "eyes": "Cokelat Tua"
   },
   "gallery": [
     {
-      "src": "images/gallery/1787554279307-1000182902.jpg",
-      "caption": ""
+      "url": "https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?auto=format&fit=crop&q=80&w=800",
+      "title": "Editorial Catalog"
     },
     {
-      "src": "images/gallery/1787554283416-1000182903.jpg",
-      "caption": ""
+      "url": "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?auto=format&fit=crop&q=80&w=800",
+      "title": "Casual Hijab Lookbook"
     },
     {
-      "src": "images/gallery/1787554287310-1000182904.jpg",
-      "caption": ""
-    },
-    {
-      "src": "images/gallery/1787554291272-1000182905.jpg",
-      "caption": ""
-    },
-    {
-      "src": "images/gallery/1787554415768-1000182906.jpg",
-      "caption": ""
-    },
-    {
-      "src": "images/gallery/1787554419501-1000182907.jpg",
-      "caption": ""
+      "url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=800",
+      "title": "Studio Portrait"
     }
   ],
   "contact": {
-    "email": "email@contoh.com",
     "whatsapp": "6281234567890",
-    "instagram": "@username",
-    "phone": "",
-    "agency": ""
+    "email": "amina.model@example.com",
+    "instagram": "aminasarah.official",
+    "location": "Jakarta & Bandung, Indonesia"
   }
 }
